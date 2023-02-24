@@ -123,6 +123,7 @@ public class CalypsoPo extends AbstractSmartCard {
       isDfInvalidated = poFciRespPars.isDfInvalidated();
 
       byte applicationType = getApplicationType();
+      byte appSubType = getApplicationSubtype();
       revision = determineRevision(applicationType);
 
       // session buffer size
@@ -133,6 +134,9 @@ public class CalypsoPo extends AbstractSmartCard {
         /* old cards have their modification counter in number of commands */
         modificationCounterIsInBytes = false;
         modificationsCounterMax = REV2_PO_DEFAULT_WRITE_OPERATIONS_NUMBER_SUPPORTED_PER_SESSION;
+      } else if(applicationType == (byte) 0x98 && appSubType == (byte) 0x33 ) { // Calypso Basic
+        modificationCounterIsInBytes = false;
+        modificationsCounterMax = 4;
       } else {
         modificationsCounterMax = bufferSizeValue;
       }
