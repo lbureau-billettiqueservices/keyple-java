@@ -69,6 +69,7 @@ artifacts {
     archives sourcesJar, javadocJar
 }
 
+
 //sign if needed (based on the doSign variable)
 if (project.getProperties().containsKey("doSign") && doSign=="true") {
     apply plugin: 'signing'
@@ -85,18 +86,12 @@ if (project.getProperties().containsKey("doSign") && doSign=="true") {
 uploadArchives {
     repositories {
         mavenDeployer {
-            if (project.getProperties().containsKey("doSign") && doSign=="true") {
-                beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+            repository(url: "https://nexus.plateforme-2cloud.com/repository/bise-maven-releases/") {
+                authentication(userName: System.getenv("NEXUS_LOGIN"), password: System.getenv("NEXUS_PASSWORD"))
+            }
 
-                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                    authentication(userName: ossrhUsername, password: ossrhPassword)
-                }
-
-                snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-                    authentication(userName: ossrhUsername, password: ossrhPassword)
-                }
-            }else {
-                repository(url: mavenLocal().url)
+            snapshotRepository(url: "https://nexus.plateforme-2cloud.com/repository/bise-maven-snapshots/") {
+                authentication(userName: System.getenv("NEXUS_LOGIN"), password: System.getenv("NEXUS_PASSWORD"))
             }
         }
     }
@@ -190,7 +185,7 @@ sonarqube {
 dependencies {
     //keyple-core project
     //api project(path: ':java:component:keyple-core')
-    api group: 'org.eclipse.keyple', name: 'keyple-java-core', version: project.version
+    api group: 'org.eclipse.keyple', name: 'keyple-java-core', version: "1.0.0"
 
     // https://mvnrepository.com/artifact/org.slf4j/slf4j-api
     api "org.slf4j:slf4j-api:${slf4japi_version}"
