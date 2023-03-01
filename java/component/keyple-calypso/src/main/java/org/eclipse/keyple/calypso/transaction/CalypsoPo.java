@@ -96,6 +96,11 @@ public class CalypsoPo extends AbstractSmartCard {
   private SvLoadLogRecord svLoadLogRecord;
   private SvDebitLogRecord svDebitLogRecord;
 
+
+  private Boolean isBasic() {
+    return getApplicationType() == (byte) 0x98 && getApplicationSubtype() == (byte) 0x33;
+  }
+
   /**
    * Constructor.
    *
@@ -134,13 +139,13 @@ public class CalypsoPo extends AbstractSmartCard {
         /* old cards have their modification counter in number of commands */
         modificationCounterIsInBytes = false;
         modificationsCounterMax = REV2_PO_DEFAULT_WRITE_OPERATIONS_NUMBER_SUPPORTED_PER_SESSION;
-      } else if(applicationType == (byte) 0x98 && appSubType == (byte) 0x33 ) { // Calypso Basic
+      } else if( isBasic() ) { // Calypso Basic
         modificationCounterIsInBytes = false;
         modificationsCounterMax = 4;
       } else {
         modificationsCounterMax = bufferSizeValue;
       }
-      isConfidentialSessionModeSupported = (applicationType & APP_TYPE_CALYPSO_REV_32_MODE) != 0;
+      isConfidentialSessionModeSupported = !isBasic() && (applicationType & APP_TYPE_CALYPSO_REV_32_MODE) != 0;
       isDeselectRatificationSupported =
           (applicationType & APP_TYPE_RATIFICATION_COMMAND_REQUIRED) == 0;
       isSvFeatureAvailable = (applicationType & APP_TYPE_WITH_CALYPSO_SV) != 0;
