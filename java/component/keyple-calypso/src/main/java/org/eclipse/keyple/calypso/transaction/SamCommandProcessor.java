@@ -102,6 +102,19 @@ class SamCommandProcessor {
     samReader = (ProxyReader) this.samResource.getReader();
   }
 
+  byte getChallengeLength(CalypsoPo po) {
+    byte appType = po.getApplicationType();
+    byte appSubType = po.getApplicationSubtype();
+    if(appType == (byte) 0x98 && appSubType == (byte) 0x33) {
+      return CHALLENGE_LENGTH_REV_INF_32;
+    }
+    else {
+      return po.isConfidentialSessionModeSupported()
+              ? CHALLENGE_LENGTH_REV32
+              : CHALLENGE_LENGTH_REV_INF_32;
+    }
+  }
+
   /**
    * Gets the terminal challenge
    *
@@ -137,11 +150,10 @@ class SamCommandProcessor {
       isDiversificationDone = true;
     }
 
+    CalypsoPo po = poResource.getSmartCard();
+
     // build the SAM Get Challenge command
-    byte challengeLength =
-        poResource.getSmartCard().isConfidentialSessionModeSupported()
-            ? CHALLENGE_LENGTH_REV32
-            : CHALLENGE_LENGTH_REV_INF_32;
+    byte challengeLength = getChallengeLength(po);
 
     AbstractSamCommandBuilder<? extends AbstractSamResponseParser> getChallengeCmdBuild =
         new SamGetChallengeCmdBuild(samResource.getSmartCard().getSamRevision(), challengeLength);
