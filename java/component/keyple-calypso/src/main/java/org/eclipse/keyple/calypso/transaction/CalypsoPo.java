@@ -124,7 +124,7 @@ public class CalypsoPo extends AbstractSmartCard {
 
       byte applicationType = getApplicationType();
       byte appSubType = getApplicationSubtype();
-      revision = determineRevision(applicationType);
+      revision = determineRevision(applicationType, appSubType);
 
       // session buffer size
       bufferSizeIndicator = startupInfo[SI_BUFFER_SIZE_INDICATOR];
@@ -209,10 +209,13 @@ public class CalypsoPo extends AbstractSmartCard {
    * </ul>
    *
    * @param applicationType the application type (field of startup info)
+   * @param appSubType
    * @return the {@link PoRevision}
    */
-  private PoRevision determineRevision(byte applicationType) {
-    if (((applicationType & 0xFF) & (1 << 7)) != 0) {
+  private PoRevision determineRevision(byte applicationType, byte appSubType) {
+    if(applicationType == (byte) 0x98 && appSubType == (byte) 0x33) {
+      return PoRevision.REV3_1;
+    } else if (((applicationType & 0xFF) & (1 << 7)) != 0) {
       /* CLAP */
       return PoRevision.REV3_1_CLAP;
     } else if ((applicationType >> 3) == (byte) (0x05)) {
